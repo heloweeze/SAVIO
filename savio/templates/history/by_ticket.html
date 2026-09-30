@@ -1,0 +1,18 @@
+{% extends "base_admin.html" %}
+{% block title %}Historique — {{ ticket.reference }}{% endblock %}
+{% block page_title %}Historique — {{ ticket.reference }}{% endblock %}
+{% block breadcrumbs %}<li class="breadcrumb-item"><a href="{% url 'history:list' %}">Historique</a></li><li class="breadcrumb-item active">{{ ticket.reference }}</li>{% endblock %}
+
+{% block content %}
+<div class="card"><div class="card-body">
+  <h5 class="card-title"><a href="{{ ticket.get_absolute_url }}">{{ ticket.reference }}</a> — {{ ticket.subject }}</h5>
+  {% for e in entries %}
+    <div class="history-item">
+      <div><i class="bi {{ e.icon }}"></i> <strong>{{ e.get_action_display }}</strong> — {{ e.message }}</div>
+      <div class="history-date">{{ e.created_at|date:"d/m/Y H:i" }}{% if e.author %} · {{ e.author }}{% endif %}</div>
+    </div>
+  {% empty %}
+    <p class="text-muted">Aucune entrée.</p>
+  {% endfor %}
+</div></div>
+{% endblock %}

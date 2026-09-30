@@ -1,0 +1,96 @@
+{% load static %}
+{% load notifications_tags %}
+<header id="header" class="header fixed-top d-flex align-items-center">
+
+  <div class="d-flex align-items-center justify-content-between">
+    <a href="{% url 'dashboard:home' %}" class="logo d-flex align-items-center">
+      <img src="{% static 'niceadmin/img/logo.png' %}" alt="">
+      <span class="d-none d-lg-block savio-brand">SAVIO</span>
+    </a>
+    <i class="bi bi-list toggle-sidebar-btn"></i>
+  </div>
+
+  <nav class="header-nav ms-auto">
+    <ul class="d-flex align-items-center">
+
+      <li class="nav-item dropdown">
+        <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
+          <i class="bi bi-bell"></i>
+          {% if unread_count %}
+            <span class="badge bg-primary badge-number">{{ unread_count }}</span>
+          {% endif %}
+        </a>
+
+        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications">
+          <li class="dropdown-header">
+            {% if unread_count %}Vous avez {{ unread_count }} notification{{ unread_count|pluralize }} non lue{{ unread_count|pluralize }}
+            {% else %}Aucune notification non lue{% endif %}
+            <a href="{% url 'notifications:list' %}"><span class="badge rounded-pill bg-primary p-2 ms-2">Voir tout</span></a>
+          </li>
+          {% for n in latest_notifications %}
+            <li><hr class="dropdown-divider"></li>
+            <li class="notification-item">
+              <i class="bi bi-info-circle text-primary"></i>
+              <div>
+                <h4>{{ n.title|truncatechars:40 }}</h4>
+                <p>{{ n.message|truncatechars:80 }}</p>
+                <p>{{ n.created_at|timesince }}</p>
+              </div>
+            </li>
+          {% empty %}
+            <li><hr class="dropdown-divider"></li>
+            <li class="notification-item">
+              <i class="bi bi-bell-slash"></i>
+              <div><p>Aucune notification récente.</p></div>
+            </li>
+          {% endfor %}
+          <li><hr class="dropdown-divider"></li>
+          <li class="dropdown-footer">
+            <a href="{% url 'notifications:list' %}">Toutes les notifications</a>
+          </li>
+        </ul>
+      </li>
+
+      <li class="nav-item dropdown pe-3">
+        <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
+          {% if user.avatar %}
+            <img src="{{ user.avatar.url }}" alt="Profil" class="rounded-circle">
+          {% else %}
+            <i class="bi bi-person-circle profile-icon" aria-label="Profil"></i>
+          {% endif %}
+          <span class="d-none d-md-block dropdown-toggle ps-2">{{ user.get_short_name|default:user.username }}</span>
+        </a>
+
+        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
+          <li class="dropdown-header">
+            <h6>{{ user.get_full_name|default:user.username }}</h6>
+            <span>{{ user.get_role_display }}</span>
+          </li>
+          <li><hr class="dropdown-divider"></li>
+
+          <li>
+            <a class="dropdown-item d-flex align-items-center" href="{% url 'accounts:profile' %}">
+              <i class="bi bi-person"></i><span>Mon profil</span>
+            </a>
+          </li>
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <a class="dropdown-item d-flex align-items-center" href="{% url 'accounts:password_change' %}">
+              <i class="bi bi-key"></i><span>Changer de mot de passe</span>
+            </a>
+          </li>
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <form method="post" action="{% url 'accounts:logout' %}" class="d-inline">
+              {% csrf_token %}
+              <button type="submit" class="dropdown-item d-flex align-items-center border-0 bg-transparent w-100 text-start">
+                <i class="bi bi-box-arrow-right"></i><span>Déconnexion</span>
+              </button>
+            </form>
+          </li>
+        </ul>
+      </li>
+
+    </ul>
+  </nav>
+</header>

@@ -1,0 +1,79 @@
+{% extends "base_user.html" %}
+{% block title %}Accueil{% endblock %}
+{% block page_title %}Bienvenue{% endblock %}
+{% block breadcrumbs %}<li class="breadcrumb-item active">Accueil</li>{% endblock %}
+
+{% block content %}
+<section class="section dashboard">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-body py-4">
+          <h3 class="card-title mb-1">Bonjour {{ user.get_short_name|default:user.username }}</h3>
+          <p class="text-muted mb-3">Bienvenue sur votre espace SAVIO. Créez une demande ou suivez l'avancement des vôtres.</p>
+          <a href="{% url 'tickets:create' %}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Nouvelle demande</a>
+          <a href="{% url 'tickets:my_list' %}" class="btn btn-outline-primary"><i class="bi bi-list-check"></i> Mes demandes</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card info-card sales-card">
+        <div class="card-body">
+          <h5 class="card-title">Total <span>| Mes demandes</span></h5>
+          <div class="d-flex align-items-center">
+            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center"><i class="bi bi-collection"></i></div>
+            <div class="ps-3"><h6>{{ my_total }}</h6></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card info-card revenue-card">
+        <div class="card-body">
+          <h5 class="card-title">En cours</h5>
+          <div class="d-flex align-items-center">
+            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center"><i class="bi bi-hourglass-split"></i></div>
+            <div class="ps-3"><h6>{{ my_open }}</h6></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card info-card customers-card">
+        <div class="card-body">
+          <h5 class="card-title">Clôturées</h5>
+          <div class="d-flex align-items-center">
+            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center"><i class="bi bi-check2-all"></i></div>
+            <div class="ps-3"><h6>{{ my_closed }}</h6></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Dernières demandes</h5>
+          <table class="table">
+            <thead><tr><th>Référence</th><th>Objet</th><th>Statut</th><th>Priorité</th><th>Créée le</th></tr></thead>
+            <tbody>
+              {% for t in recent_tickets %}
+                <tr class="clickable-row" data-href="{% url 'tickets:detail' t.pk %}">
+                  <td>{{ t.reference }}</td>
+                  <td>{{ t.subject|truncatechars:60 }}</td>
+                  <td><span class="badge {{ t.status_css }}">{{ t.get_status_display }}</span></td>
+                  <td><span class="badge {{ t.priority_css }}">{{ t.get_priority_display }}</span></td>
+                  <td>{{ t.created_at|date:"d/m/Y" }}</td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="5" class="text-center text-muted">Aucune demande. <a href="{% url 'tickets:create' %}">Créez-en une</a>.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

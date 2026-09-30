@@ -1,0 +1,57 @@
+{% extends "base_admin.html" %}
+{% block title %}{{ technician }}{% endblock %}
+{% block page_title %}{{ technician }}{% endblock %}
+{% block breadcrumbs %}
+  <li class="breadcrumb-item"><a href="{% url 'technicians:list' %}">Techniciens</a></li>
+  <li class="breadcrumb-item active">{{ technician }}</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-5">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Informations</h5>
+        <table class="table table-borderless mb-0">
+          <tr><th>Nom</th><td>{{ technician }}</td></tr>
+          <tr><th>Email</th><td>{{ technician.email }}</td></tr>
+          <tr><th>Téléphone</th><td>{{ technician.phone|default:"—" }}</td></tr>
+          <tr><th>Spécialité</th><td>{{ technician.specialty|default:"—" }}</td></tr>
+          <tr><th>Compte associé</th><td>{{ technician.user|default:"—" }}</td></tr>
+          <tr><th>Actif</th><td>{% if technician.is_active %}<span class="badge bg-success">Oui</span>{% else %}<span class="badge bg-secondary">Non</span>{% endif %}</td></tr>
+        </table>
+      </div>
+      {% if user.is_admin_role or user.is_superuser %}
+        <div class="card-footer d-flex justify-content-between">
+          <a href="{% url 'technicians:update' technician.pk %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil"></i> Modifier</a>
+          <a href="{% url 'technicians:delete' technician.pk %}" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i> Supprimer</a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="col-lg-7">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Tickets assignés</h5>
+        <table class="table">
+          <thead><tr><th>Réf.</th><th>Client</th><th>Objet</th><th>Statut</th><th>Priorité</th></tr></thead>
+          <tbody>
+            {% for t in tickets %}
+              <tr class="clickable-row" data-href="{% url 'tickets:detail' t.pk %}">
+                <td>{{ t.reference }}</td>
+                <td>{{ t.client }}</td>
+                <td>{{ t.subject|truncatechars:40 }}</td>
+                <td><span class="badge {{ t.status_css }}">{{ t.get_status_display }}</span></td>
+                <td><span class="badge {{ t.priority_css }}">{{ t.get_priority_display }}</span></td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="5" class="text-center text-muted py-3">Aucun ticket assigné.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

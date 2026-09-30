@@ -1,0 +1,23 @@
+{% extends "base_admin.html" %}
+{% block title %}Supprimer {{ client }}{% endblock %}
+{% block page_title %}Supprimer le client{% endblock %}
+{% block breadcrumbs %}<li class="breadcrumb-item"><a href="{% url 'clients:list' %}">Clients</a></li><li class="breadcrumb-item active">Supprimer</li>{% endblock %}
+
+{% block content %}
+<div class="row"><div class="col-xl-6 offset-xl-3">
+  <div class="card">
+    <div class="card-body">
+      <h5 class="card-title text-danger">Confirmation de suppression</h5>
+      <p>Voulez-vous vraiment supprimer le client <strong>{{ client }}</strong> ? Cette action est irréversible.</p>
+      {% if client.tickets.exists %}
+        <div class="alert alert-warning">Ce client possède des demandes liées. La suppression sera bloquée tant qu'il existe des tickets rattachés (intégrité).</div>
+      {% endif %}
+      <form method="post" data-confirm="Confirmer la suppression ?">
+        {% csrf_token %}
+        <a href="{{ client.get_absolute_url }}" class="btn btn-outline-secondary">Annuler</a>
+        <button type="submit" class="btn btn-danger">Supprimer</button>
+      </form>
+    </div>
+  </div>
+</div></div>
+{% endblock %}

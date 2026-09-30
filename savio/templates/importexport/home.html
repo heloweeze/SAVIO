@@ -1,0 +1,49 @@
+{% extends "base_admin.html" %}
+{% block title %}Import / Export{% endblock %}
+{% block page_title %}Import / Export CSV{% endblock %}
+{% block breadcrumbs %}<li class="breadcrumb-item active">Import / Export</li>{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-6">
+    <div class="card"><div class="card-body">
+      <h5 class="card-title"><i class="bi bi-box-arrow-down text-primary"></i> Exports</h5>
+      <p class="text-muted small">Téléchargez les données au format CSV (séparateur ; / UTF-8, compatible Excel).</p>
+      <div class="list-group">
+        <a class="list-group-item list-group-item-action" href="{% url 'importexport:export_clients' %}">
+          <i class="bi bi-people"></i> Clients (clients.csv)
+        </a>
+        <a class="list-group-item list-group-item-action" href="{% url 'importexport:export_technicians' %}">
+          <i class="bi bi-person-gear"></i> Techniciens (techniciens.csv)
+        </a>
+        <a class="list-group-item list-group-item-action" href="{% url 'importexport:export_tickets' %}">
+          <i class="bi bi-ticket-detailed"></i> Demandes SAV (demandes.csv)
+        </a>
+        <a class="list-group-item list-group-item-action" href="{% url 'importexport:export_history' %}">
+          <i class="bi bi-clock-history"></i> Historique (historique.csv)
+        </a>
+      </div>
+    </div></div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="card"><div class="card-body">
+      <h5 class="card-title"><i class="bi bi-box-arrow-up text-primary"></i> Imports</h5>
+      <p class="text-muted small">Importez des données depuis un CSV. Les lignes existantes sont mises à jour.</p>
+      <div class="list-group">
+        <a class="list-group-item list-group-item-action" href="{% url 'importexport:import_clients' %}">
+          <i class="bi bi-people"></i> Importer des clients
+        </a>
+        <a class="list-group-item list-group-item-action" href="{% url 'importexport:import_technicians' %}">
+          <i class="bi bi-person-gear"></i> Importer des techniciens
+        </a>
+      </div>
+      <div class="alert alert-info small mt-3 mb-0">
+        <i class="bi bi-info-circle"></i> Le fichier (CSV ou Excel) doit contenir
+        uniquement deux colonnes : <code>first_name</code> et <code>last_name</code>.
+        L'email, le mot de passe et l'identifiant sont générés automatiquement.
+      </div>
+    </div></div>
+  </div>
+</div>
+{% endblock %}

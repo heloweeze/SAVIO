@@ -1,0 +1,9 @@
+<div class="pagetitle">
+  <h1>{% block page_title %}{% endblock %}</h1>
+  <nav>
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Accueil</a></li>
+      {% block breadcrumbs %}{% endblock %}
+    </ol>
+  </nav>
+</div>

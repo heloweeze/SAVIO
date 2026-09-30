@@ -1,0 +1,54 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>{% block title %}SAVIO{% endblock %} · SAVIO</title>
+  <meta name="description" content="SAVIO - Application de gestion SAV">
+  <meta name="author" content="SAVIO">
+
+  <!-- Favicon -->
+  <link href="{% static 'niceadmin/img/favicon.png' %}" rel="icon">
+  <link href="{% static 'niceadmin/img/apple-touch-icon.png' %}" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.gstatic.com" rel="preconnect">
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+
+  <!-- Vendor CSS -->
+  <link href="{% static 'niceadmin/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'niceadmin/vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+  <link href="{% static 'niceadmin/vendor/boxicons/css/boxicons.min.css' %}" rel="stylesheet">
+  <link href="{% static 'niceadmin/vendor/remixicon/remixicon.css' %}" rel="stylesheet">
+  <link href="{% static 'niceadmin/vendor/simple-datatables/style.css' %}" rel="stylesheet">
+
+  <!-- Template CSS -->
+  <link href="{% static 'niceadmin/css/style.css' %}" rel="stylesheet">
+  <link href="{% static 'css/savio.css' %}" rel="stylesheet">
+
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+{% block body %}{% endblock %}
+
+<!-- jQuery (exigence de stack) -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<!-- Vendor JS -->
+<script src="{% static 'niceadmin/vendor/apexcharts/apexcharts.min.js' %}"></script>
+<script src="{% static 'niceadmin/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'niceadmin/vendor/chart.js/chart.umd.js' %}"></script>
+<script src="{% static 'niceadmin/vendor/echarts/echarts.min.js' %}"></script>
+<script src="{% static 'niceadmin/vendor/simple-datatables/simple-datatables.js' %}"></script>
+
+<!-- Template JS -->
+<script src="{% static 'niceadmin/js/main.js' %}"></script>
+<script src="{% static 'js/savio.js' %}"></script>
+
+{% block extra_js %}{% endblock %}
+
+</body>
+</html>

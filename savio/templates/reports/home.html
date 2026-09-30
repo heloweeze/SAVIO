@@ -1,0 +1,63 @@
+{% extends "base_admin.html" %}
+{% block title %}Rapports{% endblock %}
+{% block page_title %}Rapports{% endblock %}
+{% block breadcrumbs %}<li class="breadcrumb-item active">Rapports</li>{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-4">
+    <div class="card info-card sales-card"><div class="card-body">
+      <h5 class="card-title">Demandes</h5>
+      <div class="d-flex align-items-center">
+        <div class="card-icon rounded-circle d-flex align-items-center justify-content-center"><i class="bi bi-ticket-detailed"></i></div>
+        <div class="ps-3"><h6>{{ total_tickets }}</h6></div>
+      </div>
+    </div></div>
+  </div>
+  <div class="col-md-4">
+    <div class="card info-card revenue-card"><div class="card-body">
+      <h5 class="card-title">Clients</h5>
+      <div class="d-flex align-items-center">
+        <div class="card-icon rounded-circle d-flex align-items-center justify-content-center"><i class="bi bi-people"></i></div>
+        <div class="ps-3"><h6>{{ total_clients }}</h6></div>
+      </div>
+    </div></div>
+  </div>
+  <div class="col-md-4">
+    <div class="card info-card customers-card"><div class="card-body">
+      <h5 class="card-title">Techniciens actifs</h5>
+      <div class="d-flex align-items-center">
+        <div class="card-icon rounded-circle d-flex align-items-center justify-content-center"><i class="bi bi-person-gear"></i></div>
+        <div class="ps-3"><h6>{{ total_technicians }}</h6></div>
+      </div>
+    </div></div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-6">
+    <a href="{% url 'reports:global' %}" class="card text-decoration-none"><div class="card-body">
+      <h5 class="card-title"><i class="bi bi-bar-chart-line text-primary"></i> Rapport global</h5>
+      <p class="text-muted small mb-0">Vue d'ensemble avec statuts, priorités et évolution sur une période.</p>
+    </div></a>
+  </div>
+  <div class="col-md-6">
+    <a href="{% url 'reports:tickets' %}" class="card text-decoration-none"><div class="card-body">
+      <h5 class="card-title"><i class="bi bi-list-check text-primary"></i> Rapport des demandes</h5>
+      <p class="text-muted small mb-0">Liste filtrable des demandes SAV sur une période.</p>
+    </div></a>
+  </div>
+  <div class="col-md-6">
+    <a href="{% url 'reports:by_technician' %}" class="card text-decoration-none"><div class="card-body">
+      <h5 class="card-title"><i class="bi bi-person-badge text-primary"></i> Par technicien</h5>
+      <p class="text-muted small mb-0">Charge de travail et clôtures par intervenant.</p>
+    </div></a>
+  </div>
+  <div class="col-md-6">
+    <a href="{% url 'reports:by_client' %}" class="card text-decoration-none"><div class="card-body">
+      <h5 class="card-title"><i class="bi bi-building text-primary"></i> Par client</h5>
+      <p class="text-muted small mb-0">Classement des clients par nombre de demandes.</p>
+    </div></a>
+  </div>
+</div>
+{% endblock %}

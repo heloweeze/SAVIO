@@ -1,0 +1,10 @@
+Django>=5.2,<6.0
+python-dotenv>=1.0.1
+Pillow>=11.0.0
+reportlab>=4.0.0
+openpyxl>=3.1.0
+gunicorn>=22.0.0 ; sys_platform != "win32"
+whitenoise>=6.7.0
+
+# Note : l'assistant IA local (apps/assistant) fonctionne entièrement avec la
+# stdlib Python — aucune dépendance supplémentaire requise.

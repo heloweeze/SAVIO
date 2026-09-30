@@ -1,0 +1,72 @@
+/* SAVIO - Overrides légers sur NiceAdmin */
+
+.savio-brand {
+    font-weight: 700;
+    color: #4154f1;
+    letter-spacing: 0.5px;
+}
+
+/* Badges statut */
+.badge-status-new      { background:#6c757d; }
+.badge-status-open     { background:#0d6efd; }
+.badge-status-progress { background:#fd7e14; }
+.badge-status-pending  { background:#ffc107; color:#212529; }
+.badge-status-resolved { background:#20c997; }
+.badge-status-closed   { background:#198754; }
+.badge-status-cancel   { background:#dc3545; }
+
+/* Badges priorité */
+.badge-priority-low    { background:#6c757d; }
+.badge-priority-normal { background:#0dcaf0; color:#212529; }
+.badge-priority-high   { background:#fd7e14; }
+.badge-priority-urgent { background:#dc3545; }
+
+/* Tableau : colonne actions plus resserrée */
+.table .actions-col { width: 140px; white-space: nowrap; }
+
+/* Lignes cliquables */
+.clickable-row { cursor: pointer; }
+
+/* Boîte de dépôt pour import CSV */
+.import-dropzone {
+    border: 2px dashed #c6d1e5;
+    border-radius: 10px;
+    padding: 30px;
+    text-align: center;
+    color: #6c7a91;
+    background: #f6f9ff;
+}
+
+/* Limiter la hauteur du paragraphe description */
+.ticket-description {
+    white-space: pre-wrap;
+    line-height: 1.55;
+}
+
+/* Historique */
+.history-item {
+    border-left: 2px solid #e6ebf5;
+    padding: 10px 15px;
+    margin-left: 8px;
+}
+.history-item + .history-item { margin-top: 4px; }
+.history-item .history-date { color:#95a0b5; font-size:.85rem; }
+
+/* Notifications non lues */
+.notification-unread { background:#f3f6ff; }
+
+/* Minor tweaks */
+.pagetitle h1 { font-size: 24px; }
+
+/* Icône utilisateur (en remplacement de l'avatar par défaut) */
+.profile-icon {
+    font-size: 2.4rem;
+    color: #4154f1;
+    line-height: 1;
+}
+.profile-icon-large {
+    font-size: 10rem;
+    color: #4154f1;
+    line-height: 1;
+}
+

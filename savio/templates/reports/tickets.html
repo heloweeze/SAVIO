@@ -1,0 +1,75 @@
+{% extends "base_admin.html" %}
+{% block title %}Rapport des demandes{% endblock %}
+{% block page_title %}Rapport des demandes SAV{% endblock %}
+{% block breadcrumbs %}<li class="breadcrumb-item"><a href="{% url 'reports:home' %}">Rapports</a></li><li class="breadcrumb-item active">Demandes</li>{% endblock %}
+
+{% block content %}
+<div class="card"><div class="card-body">
+  <div class="d-flex justify-content-between align-items-center">
+    <h5 class="card-title mb-0">Filtres</h5>
+    <a href="?start={{ start }}&end={{ end }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if priority_filter %}&priority={{ priority_filter }}{% endif %}&format=pdf"
+       class="btn btn-sm btn-outline-danger">
+      <i class="bi bi-file-earmark-pdf"></i> Télécharger PDF
+    </a>
+  </div>
+  <form method="get" class="row g-2 align-items-end mb-3">
+    <div class="col-auto">
+      <label class="form-label small mb-1">Du</label>
+      <input type="date" name="start" value="{{ start }}" class="form-control form-control-sm">
+    </div>
+    <div class="col-auto">
+      <label class="form-label small mb-1">Au</label>
+      <input type="date" name="end" value="{{ end }}" class="form-control form-control-sm">
+    </div>
+    <div class="col-auto">
+      <label class="form-label small mb-1">Statut</label>
+      <select name="status" class="form-select form-select-sm">
+        <option value="">(tous)</option>
+        {% for code, label in statuses %}
+          <option value="{{ code }}" {% if code == status_filter %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-auto">
+      <label class="form-label small mb-1">Priorité</label>
+      <select name="priority" class="form-select form-select-sm">
+        <option value="">(toutes)</option>
+        {% for code, label in priorities %}
+          <option value="{{ code }}" {% if code == priority_filter %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-auto">
+      <button class="btn btn-sm btn-primary"><i class="bi bi-funnel"></i> Appliquer</button>
+    </div>
+  </form>
+
+  <p class="text-muted small">{{ total }} demandes trouvées (aperçu limité à 500 lignes).</p>
+
+  <div class="table-responsive">
+    <table class="table table-sm table-striped">
+      <thead>
+        <tr>
+          <th>Référence</th><th>Sujet</th><th>Client</th><th>Technicien</th>
+          <th>Statut</th><th>Priorité</th><th>Créée le</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for t in tickets %}
+          <tr>
+            <td><a href="{% url 'tickets:detail' t.pk %}">{{ t.reference }}</a></td>
+            <td>{{ t.subject|truncatechars:60 }}</td>
+            <td>{{ t.client.display_name|default:t.client }}</td>
+            <td>{% if t.assigned_to %}{{ t.assigned_to }}{% else %}<span class="text-muted">—</span>{% endif %}</td>
+            <td><span class="badge {{ t.status_css }}">{{ t.get_status_display }}</span></td>
+            <td><span class="badge {{ t.priority_css }}">{{ t.get_priority_display }}</span></td>
+            <td>{{ t.created_at|date:"d/m/Y H:i" }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="7" class="text-center text-muted">Aucun résultat.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div></div>
+{% endblock %}

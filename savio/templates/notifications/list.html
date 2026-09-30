@@ -1,0 +1,45 @@
+{% extends user.is_staff|yesno:"base_admin.html,base_user.html" %}
+{% block title %}Notifications{% endblock %}
+{% block page_title %}Notifications{% endblock %}
+{% block breadcrumbs %}<li class="breadcrumb-item active">Notifications</li>{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-center mt-3">
+      <h5 class="card-title mb-0">Centre de notifications</h5>
+      <form method="post" action="{% url 'notifications:mark_all_read' %}">
+        {% csrf_token %}
+        <button class="btn btn-sm btn-outline-primary"><i class="bi bi-check2-all"></i> Tout marquer comme lu</button>
+      </form>
+    </div>
+
+    <ul class="list-group list-group-flush mt-3">
+      {% for n in notifications %}
+        <li class="list-group-item d-flex justify-content-between {% if not n.is_read %}notification-unread{% endif %}">
+          <div>
+            <div class="fw-bold">
+              {% if n.url %}<a href="{% url 'notifications:open' n.pk %}">{{ n.title }}</a>{% else %}{{ n.title }}{% endif %}
+            </div>
+            <div class="small text-muted">{{ n.message }}</div>
+            <div class="small text-muted">{{ n.created_at|date:"d/m/Y H:i" }}</div>
+          </div>
+          <div>
+            {% if not n.is_read %}
+              <form method="post" action="{% url 'notifications:mark_read' n.pk %}" class="d-inline">
+                {% csrf_token %}
+                <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-check2"></i></button>
+              </form>
+            {% else %}
+              <span class="badge bg-secondary">Lue</span>
+            {% endif %}
+          </div>
+        </li>
+      {% empty %}
+        <li class="list-group-item text-center text-muted">Aucune notification.</li>
+      {% endfor %}
+    </ul>
+    {% include "partials/pagination.html" %}
+  </div>
+</div>
+{% endblock %}

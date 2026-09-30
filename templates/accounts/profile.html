@@ -1,0 +1,67 @@
+{% extends user.is_staff|yesno:"base_admin.html,base_user.html" %}
+{% load static %}
+
+{% block title %}Mon profil{% endblock %}
+{% block page_title %}Mon profil{% endblock %}
+{% block breadcrumbs %}<li class="breadcrumb-item active">Profil</li>{% endblock %}
+
+{% block content %}
+<section class="section profile">
+  <div class="row">
+    <div class="col-xl-4">
+      <div class="card">
+        <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
+          {% if user.avatar %}
+            <img src="{{ user.avatar.url }}" alt="Profil" class="rounded-circle" style="max-width:120px;">
+          {% else %}
+            <i class="bi bi-person-circle profile-icon-large" aria-label="Profil"></i>
+          {% endif %}
+          <h2>{{ user.get_full_name|default:user.username }}</h2>
+          <h3 class="small text-muted">{{ user.get_role_display }}</h3>
+          {% if user.job_title %}<p class="text-muted mb-0">{{ user.job_title }}</p>{% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-8">
+      <div class="card">
+        <div class="card-body pt-3">
+          <ul class="nav nav-tabs nav-tabs-bordered">
+            <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#profile-overview">Aperçu</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-edit">Modifier le profil</button></li>
+          </ul>
+
+          <div class="tab-content pt-2">
+            <div class="tab-pane fade show active" id="profile-overview">
+              <h5 class="card-title">Informations</h5>
+              <div class="row"><div class="col-lg-3 col-md-4 label ">Nom complet</div><div class="col-lg-9 col-md-8">{{ user.get_full_name|default:"—" }}</div></div>
+              <div class="row"><div class="col-lg-3 col-md-4 label">Email</div><div class="col-lg-9 col-md-8">{{ user.email|default:"—" }}</div></div>
+              <div class="row"><div class="col-lg-3 col-md-4 label">Téléphone</div><div class="col-lg-9 col-md-8">{{ user.phone|default:"—" }}</div></div>
+              <div class="row"><div class="col-lg-3 col-md-4 label">Adresse</div><div class="col-lg-9 col-md-8">{{ user.address|default:"—" }}</div></div>
+              <div class="row"><div class="col-lg-3 col-md-4 label">Rôle</div><div class="col-lg-9 col-md-8">{{ user.get_role_display }}</div></div>
+            </div>
+
+            <div class="tab-pane fade" id="profile-edit">
+              <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {% for field in form %}
+                  <div class="row mb-3">
+                    <label class="col-md-4 col-lg-3 col-form-label">{{ field.label }}</label>
+                    <div class="col-md-8 col-lg-9">
+                      {{ field }}
+                      {% if field.errors %}<div class="text-danger small">{{ field.errors.0 }}</div>{% endif %}
+                    </div>
+                  </div>
+                {% endfor %}
+                <div class="text-end">
+                  <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

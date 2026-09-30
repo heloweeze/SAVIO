@@ -1,0 +1,114 @@
+{% extends "base_admin.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+{% block breadcrumbs %}<li class="breadcrumb-item"><a href="{% url 'importexport:home' %}">Import / Export</a></li><li class="breadcrumb-item active">Import</li>{% endblock %}
+
+{% block content %}
+<div class="row"><div class="col-xl-8 offset-xl-2">
+  <div class="card"><div class="card-body">
+    <h5 class="card-title">{{ title }}</h5>
+
+    {% if is_client_import %}
+      <div class="alert alert-info small mb-3">
+        <strong>Format attendu :</strong>
+        <ul class="mb-1">
+          <li>Colonnes obligatoires : <code>first_name</code>, <code>last_name</code>.</li>
+          <li>Colonnes facultatives : <code>phone</code>, <code>address</code>, <code>city</code>, <code>postal_code</code>, <code>country</code>.</li>
+        </ul>
+        <strong>Identifiants générés automatiquement :</strong>
+        <ul class="mb-0">
+          <li>Email : 1ʳᵉ lettre du 1ᵉʳ prénom + nom + <code>@savio.local</code><br>
+              <em>ex. Jean Brice DUPONT → <code>j.dupont@savio.local</code></em></li>
+          <li>Mot de passe : 1ᵉʳ prénom + 2 premières lettres du NOM + <code>#</code><br>
+              <em>ex. Jean Brice DUPONT → <code>jeandu#</code></em></li>
+        </ul>
+      </div>
+    {% elif is_technician_import %}
+      <div class="alert alert-info small mb-3">
+        <strong>Format attendu :</strong>
+        <ul class="mb-1">
+          <li>Colonnes obligatoires : <code>first_name</code>, <code>last_name</code>.</li>
+          <li>Colonnes facultatives : <code>phone</code>, <code>specialty</code>.</li>
+        </ul>
+        <strong>Identifiants générés automatiquement :</strong>
+        <ul class="mb-0">
+          <li>Email : 1ᵉʳ prénom + <code>.</code> + nom + <code>@savio.local</code><br>
+              <em>ex. Jean Brice DUPONT → <code>jean.dupont@savio.local</code></em></li>
+          <li>Mot de passe : 1ᵉʳ prénom + 2 premières lettres du NOM + <code>#</code><br>
+              <em>ex. Jean Brice DUPONT → <code>jeandu#</code></em></li>
+        </ul>
+      </div>
+    {% else %}
+      <p class="text-muted small">
+        Colonnes attendues : <code>{{ example_headers|join:", " }}</code><br>
+        Séparateur <code>;</code> ou <code>,</code> — encodage UTF-8 (CSV) ou fichier <code>.xlsx</code>.
+      </p>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" class="mb-3">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label class="form-label">{{ form.file.label }}</label>
+        {{ form.file }}
+        {% if form.file.help_text %}<div class="form-text">{{ form.file.help_text }}</div>{% endif %}
+        {% if form.file.errors %}<div class="text-danger small">{{ form.file.errors.0 }}</div>{% endif %}
+      </div>
+      <div class="text-end">
+        <a href="{% url 'importexport:home' %}" class="btn btn-outline-secondary">Annuler</a>
+        <button class="btn btn-primary"><i class="bi bi-upload"></i> Importer</button>
+      </div>
+    </form>
+
+    {% if report %}
+      <hr>
+      <h6>Compte-rendu</h6>
+      <ul class="mb-2">
+        <li><strong>{{ report.created }}</strong> enregistrements créés</li>
+        <li><strong>{{ report.updated }}</strong> enregistrements mis à jour</li>
+        <li><strong>{{ report.errors|length }}</strong> erreur(s)</li>
+      </ul>
+
+      {% if report.credentials %}
+        <div class="alert alert-success">
+          <strong><i class="bi bi-key"></i> Identifiants générés</strong>
+          <p class="small mb-2">
+            Communiquez ces accès aux personnes concernées. Le mot de passe en clair
+            ne sera plus affiché après cette page.<br>
+            La connexion fonctionne avec <strong>l'e-mail</strong> ou <strong>l'identifiant court</strong>
+            (partie avant <code>@</code>).
+          </p>
+          <div class="table-responsive">
+            <table class="table table-sm table-striped mb-0">
+              <thead>
+                <tr><th>Nom</th><th>E-mail</th><th>Identifiant court</th><th>Mot de passe</th></tr>
+              </thead>
+              <tbody>
+                {% for c in report.credentials %}
+                  <tr>
+                    <td>{{ c.name }}</td>
+                    <td><code>{{ c.email }}</code></td>
+                    <td><code>{{ c.email|cut:"@savio.local" }}</code></td>
+                    <td><code>{{ c.password }}</code></td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      {% endif %}
+
+      {% if report.errors %}
+        <div class="alert alert-warning">
+          <strong>Détail des erreurs :</strong>
+          <ul class="small mb-0">
+            {% for err in report.errors|slice:":50" %}<li>{{ err }}</li>{% endfor %}
+          </ul>
+          {% if report.errors|length > 50 %}
+            <em class="small">(... {{ report.errors|length|add:"-50" }} autres erreurs non affichées)</em>
+          {% endif %}
+        </div>
+      {% endif %}
+    {% endif %}
+  </div></div>
+</div></div>
+{% endblock %}

@@ -1,0 +1,159 @@
+{% extends "base_admin.html" %}
+
+{% block title %}Clients{% endblock %}
+{% block page_title %}Clients{% endblock %}
+{% block breadcrumbs %}<li class="breadcrumb-item active">Clients</li>{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="card">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mt-3">
+        <h5 class="card-title mb-0">Liste des clients <span class="text-muted small">({{ page_obj.paginator.count }})</span></h5>
+        {% if user.is_admin_role or user.is_superuser %}
+          <a href="{% url 'clients:create' %}" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus-lg"></i> Nouveau client
+          </a>
+        {% endif %}
+      </div>
+
+      <form method="get" class="row g-2 my-3">
+        <div class="col-md-6">{{ form.q }}</div>
+        <div class="col-md-3">{{ form.type }}</div>
+        <div class="col-md-3"><button class="btn btn-outline-primary w-100" type="submit"><i class="bi bi-funnel"></i> Filtrer</button></div>
+      </form>
+
+      {% if user.is_admin_role or user.is_superuser %}
+        {# Formulaire « hors-DOM » : les checkboxes y sont rattachées via form="bulkDeleteForm" #}
+        <form method="post" action="{% url 'clients:bulk_delete' %}" id="bulkDeleteForm">{% csrf_token %}</form>
+
+        <div class="d-flex justify-content-end mb-2">
+          <button type="button" id="bulkDeleteBtn"
+                  class="btn btn-sm btn-outline-danger" disabled
+                  data-bs-toggle="modal" data-bs-target="#bulkDeleteModal">
+            <i class="bi bi-trash"></i>
+            Supprimer la sélection (<span class="js-bulk-count">0</span>)
+          </button>
+        </div>
+      {% endif %}
+
+      <table class="table table-hover align-middle">
+        <thead>
+          <tr>
+            {% if user.is_admin_role or user.is_superuser %}
+              <th style="width:36px;">
+                <input type="checkbox" class="form-check-input bulk-select-all"
+                       aria-label="Tout sélectionner">
+              </th>
+            {% endif %}
+            <th>Nom</th><th>Type</th><th>Email</th><th>Téléphone</th><th>Ville</th><th>Actif</th><th class="actions-col"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for client in clients %}
+            <tr class="clickable-row" data-href="{% url 'clients:detail' client.pk %}">
+              {% if user.is_admin_role or user.is_superuser %}
+                <td>
+                  <input type="checkbox" class="form-check-input bulk-select-row"
+                         name="ids" value="{{ client.pk }}"
+                         form="bulkDeleteForm"
+                         aria-label="Sélectionner {{ client }}">
+                </td>
+              {% endif %}
+              <td><strong>{{ client }}</strong></td>
+              <td>{{ client.get_type_display }}</td>
+              <td>{{ client.email|default:"—" }}</td>
+              <td>{{ client.phone|default:"—" }}</td>
+              <td>{{ client.city|default:"—" }}</td>
+              <td>{% if client.is_active %}<span class="badge bg-success">Oui</span>{% else %}<span class="badge bg-secondary">Non</span>{% endif %}</td>
+              <td>
+                <a href="{% url 'clients:detail' client.pk %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a>
+                {% if user.is_admin_role or user.is_superuser %}
+                  <a href="{% url 'clients:update' client.pk %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
+                {% endif %}
+              </td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="{% if user.is_admin_role or user.is_superuser %}8{% else %}7{% endif %}" class="text-center text-muted py-4">Aucun client.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      {% if user.is_admin_role or user.is_superuser %}
+        <!-- Modal de confirmation -->
+        <div class="modal fade" id="bulkDeleteModal" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-exclamation-triangle text-danger"></i> Confirmer la suppression</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+              </div>
+              <div class="modal-body">
+                <p>Voulez-vous vraiment supprimer
+                  <strong><span class="js-bulk-count">0</span> client(s)</strong> ?
+                </p>
+                <p class="small text-muted mb-0">
+                  Les clients ayant des demandes SAV associées ne seront pas supprimés
+                  (ils vous seront listés à la fin de l'opération).
+                </p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="submit" form="bulkDeleteForm" class="btn btn-danger">
+                  <i class="bi bi-trash"></i> Supprimer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+
+      {% include "partials/pagination.html" %}
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  'use strict';
+  function refreshBulkState() {
+    var rows = document.querySelectorAll('.bulk-select-row');
+    if (!rows.length) return;
+    var count = 0;
+    rows.forEach(function (cb) { if (cb.checked) count++; });
+    document.querySelectorAll('.js-bulk-count').forEach(function (el) {
+      el.textContent = count;
+    });
+    var btn = document.getElementById('bulkDeleteBtn');
+    if (btn) btn.disabled = (count === 0);
+    var all = document.querySelector('.bulk-select-all');
+    if (all) {
+      if (count === 0) { all.indeterminate = false; all.checked = false; }
+      else if (count === rows.length) { all.indeterminate = false; all.checked = true; }
+      else { all.indeterminate = true; all.checked = false; }
+    }
+  }
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.bulk-select-row, .bulk-select-all').forEach(function (cb) {
+      cb.addEventListener('click', function (e) { e.stopPropagation(); });
+    });
+    var all = document.querySelector('.bulk-select-all');
+    if (all) {
+      all.addEventListener('change', function () {
+        var checked = this.checked;
+        document.querySelectorAll('.bulk-select-row').forEach(function (cb) {
+          cb.checked = checked;
+        });
+        refreshBulkState();
+      });
+    }
+    document.querySelectorAll('.bulk-select-row').forEach(function (cb) {
+      cb.addEventListener('change', refreshBulkState);
+    });
+    refreshBulkState();
+  });
+})();
+</script>
+{% endblock %}

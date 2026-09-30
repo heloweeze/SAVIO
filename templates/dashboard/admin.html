@@ -1,0 +1,228 @@
+{% extends "base_admin.html" %}
+{% block title %}Tableau de bord{% endblock %}
+{% block page_title %}Tableau de bord{% endblock %}
+{% block breadcrumbs %}<li class="breadcrumb-item active">Tableau de bord</li>{% endblock %}
+
+{% block content %}
+<section class="section dashboard">
+  <div class="row">
+
+    <!-- Cards KPI -->
+    <div class="col-xxl-3 col-md-6">
+      <div class="card info-card sales-card">
+        <div class="card-body">
+          <h5 class="card-title">Tickets <span>| Total</span></h5>
+          <div class="d-flex align-items-center">
+            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center"><i class="bi bi-ticket-detailed"></i></div>
+            <div class="ps-3"><h6>{{ tickets_total }}</h6><span class="text-muted small">tous statuts</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xxl-3 col-md-6">
+      <div class="card info-card revenue-card">
+        <div class="card-body">
+          <h5 class="card-title">En cours <span>| Actifs</span></h5>
+          <div class="d-flex align-items-center">
+            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center"><i class="bi bi-arrow-repeat"></i></div>
+            <div class="ps-3"><h6>{{ tickets_in_progress }}</h6><span class="text-muted small">en traitement</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xxl-3 col-md-6">
+      <div class="card info-card customers-card">
+        <div class="card-body">
+          <h5 class="card-title">En attente</h5>
+          <div class="d-flex align-items-center">
+            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center"><i class="bi bi-hourglass-split"></i></div>
+            <div class="ps-3"><h6>{{ tickets_pending }}</h6><span class="text-muted small">nécessite action</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xxl-3 col-md-6">
+      <div class="card info-card">
+        <div class="card-body">
+          <h5 class="card-title">Prioritaires</h5>
+          <div class="d-flex align-items-center">
+            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center" style="background:#fff4f4;color:#dc3545;"><i class="bi bi-exclamation-triangle"></i></div>
+            <div class="ps-3"><h6>{{ tickets_urgent }}</h6><span class="text-danger small">haute / urgente</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xxl-3 col-md-6">
+      <div class="card info-card">
+        <div class="card-body">
+          <h5 class="card-title">Nouveaux</h5>
+          <div class="d-flex align-items-center">
+            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center"><i class="bi bi-star"></i></div>
+            <div class="ps-3"><h6>{{ tickets_new }}</h6><span class="text-muted small">à qualifier</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xxl-3 col-md-6">
+      <div class="card info-card">
+        <div class="card-body">
+          <h5 class="card-title">Ouverts</h5>
+          <div class="d-flex align-items-center">
+            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center"><i class="bi bi-envelope-open"></i></div>
+            <div class="ps-3"><h6>{{ tickets_open }}</h6></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xxl-3 col-md-6">
+      <div class="card info-card">
+        <div class="card-body">
+          <h5 class="card-title">Clôturés</h5>
+          <div class="d-flex align-items-center">
+            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center" style="background:#e7f8f0;color:#198754;"><i class="bi bi-check2-circle"></i></div>
+            <div class="ps-3"><h6>{{ tickets_closed }}</h6></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xxl-3 col-md-6">
+      <div class="card info-card">
+        <div class="card-body">
+          <h5 class="card-title">Clients / Techniciens</h5>
+          <div class="d-flex align-items-center">
+            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center"><i class="bi bi-people"></i></div>
+            <div class="ps-3"><h6>{{ clients_total }} <span class="text-muted small"> / {{ technicians_total }}</span></h6></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Graph 1 : évolution (line) -->
+    <div class="col-xl-8 col-lg-7">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Évolution des demandes <span>| 30 derniers jours</span></h5>
+          <div id="evolutionChart" style="min-height:340px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Graph 2 : répartition par statut (pie) -->
+    <div class="col-xl-4 col-lg-5">
+      <div class="card">
+        <div class="card-body pb-0">
+          <h5 class="card-title">Répartition par statut</h5>
+          <div id="statusChart" style="min-height:320px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Graph 3 : tickets par technicien (bar) -->
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Nombre de tickets par technicien</h5>
+          <div id="technicianChart" style="min-height:340px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tableau récent -->
+    <div class="col-lg-7">
+      <div class="card recent-sales overflow-auto">
+        <div class="card-body">
+          <h5 class="card-title">Demandes récentes</h5>
+          <table class="table table-borderless">
+            <thead><tr><th>Référence</th><th>Client</th><th>Objet</th><th>Statut</th><th>Priorité</th></tr></thead>
+            <tbody>
+              {% for t in recent_tickets %}
+                <tr class="clickable-row" data-href="{% url 'tickets:detail' t.pk %}">
+                  <td><a href="{% url 'tickets:detail' t.pk %}">{{ t.reference }}</a></td>
+                  <td>{{ t.client }}</td>
+                  <td>{{ t.subject|truncatechars:32 }}</td>
+                  <td><span class="badge {{ t.status_css }}">{{ t.get_status_display }}</span></td>
+                  <td><span class="badge {{ t.priority_css }}">{{ t.get_priority_display }}</span></td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="5" class="text-center text-muted py-3">Aucune demande.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activité récente -->
+    <div class="col-lg-5">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Activité récente</h5>
+          <div class="activity">
+            {% for e in recent_history %}
+              <div class="activity-item d-flex">
+                <div class="activite-label">{{ e.created_at|timesince }}</div>
+                <i class='bi bi-circle-fill activity-badge text-success align-self-start'></i>
+                <div class="activity-content">
+                  {% if e.ticket %}<a href="{% url 'tickets:detail' e.ticket.pk %}" class="fw-bold text-dark">{{ e.ticket.reference }}</a> — {% endif %}{{ e.message }}
+                </div>
+              </div>
+            {% empty %}
+              <p class="text-muted">Pas d'activité récente.</p>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+
+  // --- PIE : répartition par statut ---
+  const rStatus = await fetch("{% url 'dashboard:chart_status' %}").then(r => r.json());
+  new ApexCharts(document.querySelector("#statusChart"), {
+    chart: { type: "pie", height: 320 },
+    series: rStatus.values,
+    labels: rStatus.labels,
+    colors: ["#6c757d","#0d6efd","#fd7e14","#ffc107","#20c997","#198754","#dc3545"],
+    legend: { position: "bottom" }
+  }).render();
+
+  // --- BAR : tickets par technicien ---
+  const rTech = await fetch("{% url 'dashboard:chart_by_technician' %}").then(r => r.json());
+  new ApexCharts(document.querySelector("#technicianChart"), {
+    chart: { type: "bar", height: 340, toolbar: { show: false } },
+    series: [{ name: "Tickets", data: rTech.values }],
+    xaxis: { categories: rTech.labels },
+    colors: ["#4154f1"],
+    plotOptions: { bar: { borderRadius: 4, horizontal: false, columnWidth: "45%" } },
+    dataLabels: { enabled: false }
+  }).render();
+
+  // --- LINE : évolution sur 30 jours ---
+  const rEvo = await fetch("{% url 'dashboard:chart_evolution' %}").then(r => r.json());
+  new ApexCharts(document.querySelector("#evolutionChart"), {
+    chart: { type: "area", height: 340, toolbar: { show: false } },
+    series: [{ name: "Demandes", data: rEvo.values }],
+    xaxis: { categories: rEvo.labels },
+    colors: ["#4154f1"],
+    stroke: { curve: "smooth", width: 2 },
+    fill: { type: "gradient", gradient: { shadeIntensity: 1, opacityFrom: 0.3, opacityTo: 0.05, stops: [0, 90, 100] } },
+    dataLabels: { enabled: false },
+    markers: { size: 3 }
+  }).render();
+
+});
+</script>
+{% endblock %}

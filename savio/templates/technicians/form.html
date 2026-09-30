@@ -1,0 +1,31 @@
+{% extends "base_admin.html" %}
+{% block title %}{% if is_create %}Nouveau technicien{% else %}Modifier — {{ technician }}{% endif %}{% endblock %}
+{% block page_title %}{% if is_create %}Nouveau technicien{% else %}Modifier{% endif %}{% endblock %}
+{% block breadcrumbs %}<li class="breadcrumb-item"><a href="{% url 'technicians:list' %}">Techniciens</a></li><li class="breadcrumb-item active">{% if is_create %}Nouveau{% else %}Modifier{% endif %}</li>{% endblock %}
+
+{% block content %}
+<div class="row"><div class="col-xl-8 offset-xl-2">
+  <div class="card">
+    <div class="card-body">
+      <h5 class="card-title">{% if is_create %}Créer un technicien{% else %}Modifier le technicien{% endif %}</h5>
+      <form method="post">
+        {% csrf_token %}
+        <div class="row">
+          {% for field in form %}
+            <div class="col-md-6 mb-3">
+              <label class="form-label">{{ field.label }}{% if field.field.required %} <span class="text-danger">*</span>{% endif %}</label>
+              {{ field }}
+              {% if field.help_text %}<div class="form-text small">{{ field.help_text }}</div>{% endif %}
+              {% if field.errors %}<div class="text-danger small">{{ field.errors.0 }}</div>{% endif %}
+            </div>
+          {% endfor %}
+        </div>
+        <div class="text-end">
+          <a href="{% url 'technicians:list' %}" class="btn btn-outline-secondary">Annuler</a>
+          <button type="submit" class="btn btn-primary">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div></div>
+{% endblock %}

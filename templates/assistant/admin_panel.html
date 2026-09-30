@@ -1,0 +1,154 @@
+{% extends "base_admin.html" %}
+{% block title %}Assistant IA — Administration{% endblock %}
+{% block page_title %}Assistant IA{% endblock %}
+
+{% block breadcrumbs %}
+  <li class="breadcrumb-item active">Assistant IA</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+
+  <div class="col-lg-5">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">
+          <i class="bi bi-cpu"></i> État du moteur
+        </h5>
+
+        <table class="table table-sm">
+          <tbody>
+            <tr>
+              <th>Activé</th>
+              <td>
+                {% if status.enabled %}
+                  <span class="badge bg-success">Oui</span>
+                {% else %}
+                  <span class="badge bg-secondary">Non (ASSISTANT_ENABLED=0)</span>
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <th>Moteur</th>
+              <td><code class="small">{{ status.engine }}</code></td>
+            </tr>
+            <tr>
+              <th>Catégories de diagnostic</th>
+              <td><span class="badge bg-primary">{{ status.knowledge_base_size }}</span></td>
+            </tr>
+            <tr>
+              <th>Intentions du chatbot</th>
+              <td><span class="badge bg-primary">{{ status.intents }}</span></td>
+            </tr>
+            <tr>
+              <th>Dépendances externes</th>
+              <td><span class="badge bg-success">Aucune</span></td>
+            </tr>
+            <tr>
+              <th>Données envoyées dehors</th>
+              <td><span class="badge bg-success">Aucune</span></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="alert alert-info small mb-0">
+          <strong><i class="bi bi-shield-check"></i> 100 % Python stdlib</strong>
+          <p class="mb-0">
+            L'assistant fonctionne entièrement avec la bibliothèque standard
+            Python (modules <code>re</code>, <code>unicodedata</code>).
+            Aucun modèle à télécharger, aucune dépendance pip supplémentaire,
+            aucune donnée envoyée à l'extérieur.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-7">
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="card-title mb-0">
+            <i class="bi bi-file-earmark-bar-graph"></i> Synthèse d'activité
+          </h5>
+          <button id="btn-summary" type="button" class="btn btn-sm btn-primary"
+                  data-url="{% url 'assistant:admin_summary' %}">
+            <i class="bi bi-magic"></i> Générer le résumé
+          </button>
+        </div>
+
+        <p class="small text-muted">
+          L'assistant lit les statistiques courantes (tickets, statuts, priorités,
+          répartition par technicien) et produit un texte de synthèse structuré
+          en plusieurs sections (activité, vigilance, recommandations, top
+          techniciens). Les chiffres sont toujours exacts (jamais inventés)
+          car composés à partir de templates Python.
+        </p>
+
+        <div id="summary-loader" class="d-none text-center text-muted small my-4">
+          <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+          Génération du résumé&nbsp;…
+        </div>
+
+        <div id="summary-output" class="d-none">
+          <div class="alert alert-light border" style="white-space: pre-wrap;"></div>
+          <div class="small text-muted">
+            <i class="bi bi-info-circle"></i> Synthèse générée localement (sans LLM).
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+  var btn = document.getElementById('btn-summary');
+  if (!btn) return;
+  var loader = document.getElementById('summary-loader');
+  var output = document.getElementById('summary-output');
+  var alertBox = output.querySelector('.alert');
+
+  function getCookie(name) {
+    var v = ('; ' + document.cookie).split('; ' + name + '=');
+    if (v.length === 2) return v.pop().split(';').shift();
+    return '';
+  }
+
+  btn.addEventListener('click', function() {
+    btn.disabled = true;
+    output.classList.add('d-none');
+    loader.classList.remove('d-none');
+
+    fetch(btn.dataset.url, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': getCookie('csrftoken'),
+        'X-Requested-With': 'XMLHttpRequest',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({})
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      loader.classList.add('d-none');
+      output.classList.remove('d-none');
+      alertBox.className = 'alert ' + (data.ok ? 'alert-light border' : 'alert-warning');
+      alertBox.style.whiteSpace = 'pre-wrap';
+      alertBox.textContent = data.text || '(réponse vide)';
+      btn.disabled = false;
+    })
+    .catch(function(err) {
+      loader.classList.add('d-none');
+      output.classList.remove('d-none');
+      alertBox.className = 'alert alert-danger';
+      alertBox.textContent = 'Erreur réseau : ' + err;
+      btn.disabled = false;
+    });
+  });
+})();
+</script>
+{% endblock %}

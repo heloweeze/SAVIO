@@ -1,0 +1,50 @@
+{% load static %}
+<aside id="sidebar" class="sidebar">
+  <ul class="sidebar-nav" id="sidebar-nav">
+
+    <li class="nav-item">
+      <a class="nav-link {% if request.resolver_match.namespace != 'dashboard' %}collapsed{% endif %}" href="{% url 'dashboard:home' %}">
+        <i class="bi bi-house"></i><span>Accueil</span>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link collapsed" href="{% url 'tickets:create' %}">
+        <i class="bi bi-plus-square"></i><span>Nouvelle demande</span>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link {% if request.resolver_match.namespace == 'tickets' and request.resolver_match.url_name != 'create' %}{% else %}collapsed{% endif %}" href="{% url 'tickets:my_list' %}">
+        <i class="bi bi-list-check"></i><span>Mes demandes</span>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link {% if request.resolver_match.namespace != 'notifications' %}collapsed{% endif %}" href="{% url 'notifications:list' %}">
+        <i class="bi bi-bell"></i><span>Notifications</span>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link {% if request.resolver_match.namespace != 'assistant' %}collapsed{% endif %}" href="{% url 'assistant:chat_page' %}">
+        <i class="bi bi-robot"></i><span>Assistant IA</span>
+      </a>
+    </li>
+
+    <li class="nav-heading">Compte</li>
+
+    <li class="nav-item">
+      <a class="nav-link {% if request.resolver_match.url_name != 'profile' %}collapsed{% endif %}" href="{% url 'accounts:profile' %}">
+        <i class="bi bi-person-circle"></i><span>Mon profil</span>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link collapsed" href="{% url 'accounts:password_change' %}">
+        <i class="bi bi-key"></i><span>Mot de passe</span>
+      </a>
+    </li>
+
+  </ul>
+</aside>

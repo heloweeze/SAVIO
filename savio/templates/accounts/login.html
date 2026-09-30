@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Connexion{% endblock %}
+
+{% block body %}
+<main>
+  <div class="container">
+    <section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center">
+
+            <div class="d-flex justify-content-center py-4">
+              <a href="/" class="logo d-flex align-items-center w-auto">
+                <img src="{% static 'niceadmin/img/logo.png' %}" alt="">
+                <span class="d-none d-lg-block savio-brand">SAVIO</span>
+              </a>
+            </div>
+
+            <div class="card mb-3">
+              <div class="card-body">
+                <div class="pt-4 pb-2">
+                  <h5 class="card-title text-center pb-0 fs-4">Connexion à SAVIO</h5>
+                  <p class="text-center small">Saisissez vos identifiants</p>
+                </div>
+
+                {% include "partials/messages.html" %}
+
+                <form method="post" class="row g-3">
+                  {% csrf_token %}
+                  {% if form.non_field_errors %}
+                    <div class="alert alert-danger py-2">{{ form.non_field_errors }}</div>
+                  {% endif %}
+
+                  <div class="col-12">
+                    <label class="form-label" for="{{ form.username.id_for_label }}">Identifiant</label>
+                    {{ form.username }}
+                    {% if form.username.errors %}<div class="text-danger small">{{ form.username.errors.0 }}</div>{% endif %}
+                  </div>
+
+                  <div class="col-12">
+                    <label class="form-label" for="{{ form.password.id_for_label }}">Mot de passe</label>
+                    {{ form.password }}
+                    {% if form.password.errors %}<div class="text-danger small">{{ form.password.errors.0 }}</div>{% endif %}
+                  </div>
+
+                  <div class="col-12">
+                    <button class="btn btn-primary w-100" type="submit">Se connecter</button>
+                  </div>
+                </form>
+
+                <hr class="my-3">
+                <div class="text-center small">
+                  <i class="bi bi-book text-primary"></i>
+                  Première visite ou besoin d'aide ?
+                  <a href="{% static 'docs/Guide_Utilisateur_SAVIO.docx' %}"
+                     class="fw-semibold text-decoration-none"
+                     download>
+                    Télécharger le guide d'utilisation
+                  </a>
+                  <div class="text-muted mt-1" style="font-size: 0.78rem;">
+                    Document Word (.docx) — explique pas à pas comment se connecter,
+                    créer une demande SAV et suivre son traitement.
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <div class="credits text-center small">
+              &copy; {% now "Y" %} <strong class="savio-brand">SAVIO</strong>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "base_admin.html" %}
+{% block title %}Demandes SAV{% endblock %}
+{% block page_title %}Demandes SAV{% endblock %}
+{% block breadcrumbs %}<li class="breadcrumb-item active">Demandes</li>{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="card">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mt-3">
+        <h5 class="card-title mb-0">Toutes les demandes <span class="text-muted small">({{ page_obj.paginator.count }})</span></h5>
+        <a href="{% url 'tickets:create' %}" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> Nouvelle demande</a>
+      </div>
+
+      <form method="get" class="row g-2 my-3">
+        <div class="col-md-3">{{ form.q }}</div>
+        <div class="col-md-2">{{ form.status }}</div>
+        <div class="col-md-2">{{ form.priority }}</div>
+        <div class="col-md-2">{{ form.assigned_to }}</div>
+        <div class="col-md-2">{{ form.client }}</div>
+        <div class="col-md-1"><button class="btn btn-outline-primary w-100" type="submit"><i class="bi bi-funnel"></i></button></div>
+      </form>
+
+      <table class="table table-hover align-middle">
+        <thead>
+          <tr>
+            <th>Référence</th><th>Client</th><th>Objet</th><th>Statut</th>
+            <th>Priorité</th><th>Technicien</th><th>Créé le</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in tickets %}
+            <tr class="clickable-row" data-href="{% url 'tickets:detail' t.pk %}">
+              <td><strong>{{ t.reference }}</strong></td>
+              <td>{{ t.client }}</td>
+              <td>{{ t.subject|truncatechars:60 }}</td>
+              <td><span class="badge {{ t.status_css }}">{{ t.get_status_display }}</span></td>
+              <td><span class="badge {{ t.priority_css }}">{{ t.get_priority_display }}</span></td>
+              <td>{{ t.assigned_to|default:"—" }}</td>
+              <td>{{ t.created_at|date:"d/m/Y H:i" }}</td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="7" class="text-center text-muted py-4">Aucune demande ne correspond.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% include "partials/pagination.html" %}
+    </div>
+  </div>
+</section>
+{% endblock %}

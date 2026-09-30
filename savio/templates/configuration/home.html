@@ -1,0 +1,108 @@
+{% extends "base_admin.html" %}
+{% block title %}Configuration{% endblock %}
+{% block page_title %}Configuration{% endblock %}
+{% block breadcrumbs %}<li class="breadcrumb-item active">Configuration</li>{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Paramètres généraux</h5>
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="form" value="general">
+          {% for field in form %}
+            <div class="mb-3">
+              <label class="form-label">{{ field.label }}</label>
+              {{ field }}
+              {% if field.help_text %}<div class="form-text small">{{ field.help_text }}</div>{% endif %}
+              {% if field.errors %}<div class="text-danger small">{{ field.errors.0 }}</div>{% endif %}
+            </div>
+          {% endfor %}
+          <div class="text-end">
+            <button type="submit" class="btn btn-primary">Enregistrer</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mt-3">
+          <h5 class="card-title mb-0">Statuts</h5>
+          <a href="{% url 'configuration:status_create' %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-plus-lg"></i> Ajouter</a>
+        </div>
+        <table class="table table-sm mt-3">
+          <thead><tr><th>Code</th><th>Libellé</th><th>Ordre</th><th>Actif</th><th></th></tr></thead>
+          <tbody>
+            {% for s in statuses %}
+              <tr>
+                <td>{{ s.code }}</td>
+                <td><span class="badge" style="background:{{ s.color }}">{{ s.label }}</span></td>
+                <td>{{ s.order }}</td>
+                <td>{% if s.is_active %}<i class="bi bi-check-circle text-success"></i>{% else %}<i class="bi bi-x-circle text-muted"></i>{% endif %}</td>
+                <td class="text-end">
+                  <a href="{% url 'configuration:status_update' s.pk %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
+                  <form method="post" action="{% url 'configuration:status_delete' s.pk %}" class="d-inline" data-confirm="Supprimer ce statut ?">
+                    {% csrf_token %}
+                    <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                  </form>
+                </td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="5" class="text-muted text-center py-3">Aucun statut personnalisé.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mt-3">
+          <h5 class="card-title mb-0">Priorités</h5>
+          <a href="{% url 'configuration:priority_create' %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-plus-lg"></i> Ajouter</a>
+        </div>
+        <table class="table table-sm mt-3">
+          <thead><tr><th>Code</th><th>Libellé</th><th>Ordre</th><th>Actif</th><th></th></tr></thead>
+          <tbody>
+            {% for p in priorities %}
+              <tr>
+                <td>{{ p.code }}</td>
+                <td><span class="badge" style="background:{{ p.color }}">{{ p.label }}</span></td>
+                <td>{{ p.order }}</td>
+                <td>{% if p.is_active %}<i class="bi bi-check-circle text-success"></i>{% else %}<i class="bi bi-x-circle text-muted"></i>{% endif %}</td>
+                <td class="text-end">
+                  <a href="{% url 'configuration:priority_update' p.pk %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
+                  <form method="post" action="{% url 'configuration:priority_delete' p.pk %}" class="d-inline" data-confirm="Supprimer cette priorité ?">
+                    {% csrf_token %}
+                    <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                  </form>
+                </td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="5" class="text-muted text-center py-3">Aucune priorité personnalisée.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <h5 class="card-title">Rôles et accès</h5>
+    <p class="text-muted">SAVIO utilise 3 rôles : <strong>Administrateur</strong>, <strong>Technicien</strong>, <strong>Utilisateur</strong>.</p>
+    <ul>
+      <li>La gestion des utilisateurs et des rôles se fait via l'<a href="/admin/">interface d'administration Django</a>.</li>
+      <li>Les décorateurs <code>admin_required</code> / <code>staff_required</code> protègent les vues métier.</li>
+      <li>Chaque nouvel utilisateur est automatiquement placé dans le groupe Django correspondant à son rôle.</li>
+    </ul>
+  </div>
+</div>
+{% endblock %}

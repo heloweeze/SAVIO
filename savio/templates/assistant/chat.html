@@ -1,0 +1,149 @@
+{% extends user.is_staff|yesno:"base_admin.html,base_user.html" %}
+{% block title %}Assistant IA{% endblock %}
+{% block page_title %}Assistant IA{% endblock %}
+
+{% block breadcrumbs %}
+  <li class="breadcrumb-item active">Assistant IA</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-9 mx-auto">
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="card-title mb-0">
+            <i class="bi bi-robot text-primary"></i> Assistant SAVIO
+          </h5>
+          <button id="btn-reset" type="button" class="btn btn-sm btn-outline-secondary"
+                  data-url="{% url 'assistant:chat_reset' %}">
+            <i class="bi bi-arrow-counterclockwise"></i> Nouvelle conversation
+          </button>
+        </div>
+
+        <p class="small text-muted">
+          Posez une question à propos du SAV : créer une demande, suivre un ticket,
+          obtenir un conseil de premier niveau. L'assistant tourne entièrement
+          en local sur ce serveur (aucune donnée n'est envoyée à l'extérieur).
+        </p>
+
+        <div id="chat-window" class="border rounded p-3 mb-3"
+             style="height: 420px; overflow-y: auto; background-color: #f8f9fa;">
+          {% for msg in history %}
+            <div class="d-flex mb-2 {% if msg.role == 'user' %}justify-content-end{% endif %}">
+              <div class="p-2 rounded {% if msg.role == 'user' %}bg-primary text-white{% else %}bg-white border{% endif %}"
+                   style="max-width: 80%; white-space: pre-wrap;">{{ msg.content }}</div>
+            </div>
+          {% empty %}
+            <p class="text-muted text-center small mt-5">
+              Aucun message pour le moment. Posez votre 1ʳᵉ question ci-dessous.
+            </p>
+          {% endfor %}
+        </div>
+
+        <form id="chat-form" data-url="{% url 'assistant:chat_send' %}">
+          {% csrf_token %}
+          <div class="input-group">
+            <input type="text" id="chat-input" class="form-control"
+                   placeholder="Votre message..." autocomplete="off" required>
+            <button class="btn btn-primary" type="submit" id="chat-submit">
+              <i class="bi bi-send"></i> Envoyer
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+  var form = document.getElementById('chat-form');
+  var input = document.getElementById('chat-input');
+  var submit = document.getElementById('chat-submit');
+  var win = document.getElementById('chat-window');
+  var btnReset = document.getElementById('btn-reset');
+
+  function getCookie(name) {
+    var v = ('; ' + document.cookie).split('; ' + name + '=');
+    if (v.length === 2) return v.pop().split(';').shift();
+    return '';
+  }
+
+  function scrollDown() {
+    win.scrollTop = win.scrollHeight;
+  }
+
+  function appendMessage(role, content, cssExtra) {
+    var wrap = document.createElement('div');
+    wrap.className = 'd-flex mb-2' + (role === 'user' ? ' justify-content-end' : '');
+    var bubble = document.createElement('div');
+    bubble.className = 'p-2 rounded ' +
+      (role === 'user' ? 'bg-primary text-white' : (cssExtra || 'bg-white border'));
+    bubble.style.maxWidth = '80%';
+    bubble.style.whiteSpace = 'pre-wrap';
+    bubble.textContent = content;
+    wrap.appendChild(bubble);
+    win.appendChild(wrap);
+    scrollDown();
+    return bubble;
+  }
+
+  scrollDown();
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    var msg = input.value.trim();
+    if (!msg) return;
+
+    appendMessage('user', msg);
+    input.value = '';
+    submit.disabled = true;
+
+    // Bulle "en train d'écrire"
+    var thinking = appendMessage('assistant', '…', 'bg-light border text-muted');
+
+    fetch(form.dataset.url, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': getCookie('csrftoken'),
+        'X-Requested-With': 'XMLHttpRequest',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ message: msg })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      thinking.textContent = data.text;
+      thinking.className = 'p-2 rounded ' + (data.ok ? 'bg-white border' : 'bg-warning-subtle border');
+      thinking.style.maxWidth = '80%';
+      thinking.style.whiteSpace = 'pre-wrap';
+      submit.disabled = false;
+      input.focus();
+      scrollDown();
+    })
+    .catch(function(err) {
+      thinking.textContent = 'Erreur réseau : ' + err;
+      thinking.className = 'p-2 rounded bg-danger-subtle border';
+      submit.disabled = false;
+    });
+  });
+
+  btnReset.addEventListener('click', function() {
+    if (!confirm('Effacer toute la conversation ?')) return;
+    fetch(btnReset.dataset.url, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': getCookie('csrftoken'),
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
+    .then(function() {
+      win.innerHTML = '<p class="text-muted text-center small mt-5">Nouvelle conversation. Posez votre 1ʳᵉ question.</p>';
+    });
+  });
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% comment %}Partial : formulaire de sélection de période (start/end).{% endcomment %}
+<form method="get" class="row g-2 align-items-end mb-3">
+  <div class="col-auto">
+    <label class="form-label small mb-1">Du</label>
+    <input type="date" name="start" value="{{ start }}" class="form-control form-control-sm">
+  </div>
+  <div class="col-auto">
+    <label class="form-label small mb-1">Au</label>
+    <input type="date" name="end" value="{{ end }}" class="form-control form-control-sm">
+  </div>
+  {% block extra_filters %}{% endblock %}
+  <div class="col-auto">
+    <button class="btn btn-sm btn-primary"><i class="bi bi-funnel"></i> Appliquer</button>
+  </div>
+</form>

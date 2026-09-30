@@ -1,0 +1,18 @@
+{% extends "base_admin.html" %}
+{% block title %}Supprimer {{ technician }}{% endblock %}
+{% block page_title %}Supprimer le technicien{% endblock %}
+{% block breadcrumbs %}<li class="breadcrumb-item"><a href="{% url 'technicians:list' %}">Techniciens</a></li><li class="breadcrumb-item active">Supprimer</li>{% endblock %}
+
+{% block content %}
+<div class="row"><div class="col-xl-6 offset-xl-3">
+  <div class="card"><div class="card-body">
+    <h5 class="card-title text-danger">Confirmation</h5>
+    <p>Supprimer <strong>{{ technician }}</strong> ?</p>
+    <form method="post" data-confirm="Confirmer la suppression ?">
+      {% csrf_token %}
+      <a href="{{ technician.get_absolute_url }}" class="btn btn-outline-secondary">Annuler</a>
+      <button type="submit" class="btn btn-danger">Supprimer</button>
+    </form>
+  </div></div>
+</div></div>
+{% endblock %}

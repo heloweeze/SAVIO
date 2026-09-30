@@ -1,0 +1,232 @@
+{% extends user.is_staff|yesno:"base_admin.html,base_user.html" %}
+{% block title %}{{ ticket.reference }}{% endblock %}
+{% block page_title %}{{ ticket.reference }}{% endblock %}
+{% block breadcrumbs %}
+  <li class="breadcrumb-item"><a href="{% if user.is_admin_role or user.is_superuser or user.is_technician_role %}{% url 'tickets:list' %}{% else %}{% url 'tickets:my_list' %}{% endif %}">Demandes</a></li>
+  <li class="breadcrumb-item active">{{ ticket.reference }}</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start flex-wrap">
+          <div>
+            <h4 class="mb-1">{{ ticket.subject }}</h4>
+            <div class="small text-muted">
+              Créée le {{ ticket.created_at|date:"d/m/Y H:i" }}
+              {% if ticket.author %} par {{ ticket.author.get_full_name|default:ticket.author.username }}{% endif %}
+            </div>
+          </div>
+          <div class="text-end">
+            <div><span class="badge {{ ticket.status_css }}">{{ ticket.get_status_display }}</span></div>
+            <div class="mt-1"><span class="badge {{ ticket.priority_css }}">{{ ticket.get_priority_display }}</span></div>
+          </div>
+        </div>
+
+        <hr>
+        <div class="ticket-description">{{ ticket.description|linebreaksbr }}</div>
+
+        <hr>
+        <div class="row">
+          <div class="col-md-6"><strong>Client :</strong>
+            {% if user.is_admin_role or user.is_superuser or user.is_technician_role %}
+              <a href="{% url 'clients:detail' ticket.client_id %}">{{ ticket.client }}</a>
+            {% else %}
+              {{ ticket.client }}
+            {% endif %}
+          </div>
+          <div class="col-md-6"><strong>Technicien :</strong> {{ ticket.assigned_to|default:"—" }}</div>
+          {% if ticket.due_date %}<div class="col-md-6 mt-2"><strong>Échéance :</strong> {{ ticket.due_date|date:"d/m/Y" }}</div>{% endif %}
+          {% if ticket.closed_at %}<div class="col-md-6 mt-2"><strong>Clôturé le :</strong> {{ ticket.closed_at|date:"d/m/Y H:i" }}</div>{% endif %}
+        </div>
+      </div>
+
+      {% if user.is_admin_role or user.is_superuser or user.is_technician_role %}
+        {% if ticket_locked_for_tech %}
+          <div class="card-footer">
+            <div class="alert alert-secondary small mb-0 py-2">
+              <i class="bi bi-lock"></i>
+              Demande <strong>{{ ticket.get_status_display|lower }}</strong> — actions verrouillées.
+              Seul un administrateur peut la rouvrir pour autoriser de nouvelles modifications.
+            </div>
+          </div>
+        {% else %}
+          <div class="card-footer d-flex flex-wrap gap-2">
+            <a href="{% url 'tickets:update' ticket.pk %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil"></i> Modifier</a>
+
+            {% if not ticket.is_closed %}
+              <form method="post" action="{% url 'tickets:close' ticket.pk %}" class="d-inline" data-confirm="Clôturer cette demande ?">
+                {% csrf_token %}
+                <button class="btn btn-outline-success btn-sm"><i class="bi bi-check2-circle"></i> Clôturer</button>
+              </form>
+            {% endif %}
+
+            {% if user.is_admin_role or user.is_superuser %}
+              <a href="{% url 'tickets:delete' ticket.pk %}" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i> Supprimer</a>
+            {% endif %}
+
+            <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="collapse" data-bs-target="#assignBlock"><i class="bi bi-person-check"></i> Affecter</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="collapse" data-bs-target="#statusBlock"><i class="bi bi-arrow-repeat"></i> Statut</button>
+          </div>
+
+          <div class="collapse" id="assignBlock">
+            <div class="card-body border-top">
+              <form method="post" action="{% url 'tickets:assign' ticket.pk %}" class="row g-2">
+                {% csrf_token %}
+                <div class="col-md-9">{{ assign_form.technician }}</div>
+                <div class="col-md-3"><button class="btn btn-primary w-100">Affecter</button></div>
+              </form>
+            </div>
+          </div>
+
+          <div class="collapse" id="statusBlock">
+            <div class="card-body border-top">
+              <form method="post" action="{% url 'tickets:status' ticket.pk %}" class="row g-2">
+                {% csrf_token %}
+                <div class="col-md-9">{{ status_form.status }}</div>
+                <div class="col-md-3"><button class="btn btn-primary w-100">Changer</button></div>
+              </form>
+            </div>
+          </div>
+        {% endif %}
+      {% endif %}
+    </div>
+
+    {% if user.is_admin_role or user.is_superuser or user.is_technician_role %}
+    <!-- Assistant IA — Diagnostic -->
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <h5 class="card-title mb-0">
+            <i class="bi bi-robot text-primary"></i> Assistant IA
+          </h5>
+          <button id="btn-suggest-diag" type="button" class="btn btn-sm btn-primary"
+                  data-url="{% url 'assistant:suggest' ticket.pk %}">
+            <i class="bi bi-lightbulb"></i> Suggérer un diagnostic
+          </button>
+        </div>
+        <div id="diag-output" class="mt-3 d-none">
+          <div class="alert alert-light border" style="white-space: pre-wrap;"></div>
+          <div class="small text-muted mt-1">
+            <i class="bi bi-info-circle"></i> Suggestion générée par l'IA locale &mdash;
+            à valider par le technicien avant d'agir.
+          </div>
+        </div>
+        <div id="diag-loader" class="mt-3 d-none text-center text-muted small">
+          <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+          Analyse en cours&nbsp;…
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Commentaires -->
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Commentaires</h5>
+        {% for c in comments %}
+          <div class="border-start border-3 {% if c.is_internal %}border-warning{% else %}border-primary{% endif %} ps-3 mb-3">
+            <div class="d-flex justify-content-between small text-muted">
+              <div>{{ c.author.get_full_name|default:c.author.username }} {% if c.is_internal %}<span class="badge bg-warning text-dark">Interne</span>{% endif %}</div>
+              <div>{{ c.created_at|date:"d/m/Y H:i" }}</div>
+            </div>
+            <div>{{ c.body|linebreaksbr }}</div>
+          </div>
+        {% empty %}
+          <p class="text-muted">Aucun commentaire pour le moment.</p>
+        {% endfor %}
+
+        <form method="post" action="{% url 'tickets:comment' ticket.pk %}" class="mt-3">
+          {% csrf_token %}
+          <div class="mb-2">{{ comment_form.body }}</div>
+          {% if user.is_admin_role or user.is_superuser or user.is_technician_role %}
+            <div class="form-check mb-2">
+              {{ comment_form.is_internal }}
+              <label class="form-check-label" for="{{ comment_form.is_internal.id_for_label }}">Note interne (non visible par le client)</label>
+            </div>
+          {% endif %}
+          <button class="btn btn-primary btn-sm"><i class="bi bi-send"></i> Publier</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Historique latéral -->
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Historique</h5>
+        {% for e in history %}
+          <div class="history-item">
+            <div class="d-flex align-items-center">
+              <i class="bi {{ e.icon }} me-2"></i>
+              <strong class="small">{{ e.get_action_display }}</strong>
+            </div>
+            <div class="small">{{ e.message }}</div>
+            <div class="history-date">{{ e.created_at|date:"d/m/Y H:i" }}{% if e.author %} · {{ e.author.get_short_name|default:e.author.username }}{% endif %}</div>
+          </div>
+        {% empty %}
+          <p class="text-muted small">Aucun événement.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if user.is_admin_role or user.is_superuser or user.is_technician_role %}
+<script>
+(function() {
+  var btn = document.getElementById('btn-suggest-diag');
+  if (!btn) return;
+  var loader = document.getElementById('diag-loader');
+  var output = document.getElementById('diag-output');
+  var alertBox = output.querySelector('.alert');
+
+  function getCookie(name) {
+    var v = ('; ' + document.cookie).split('; ' + name + '=');
+    if (v.length === 2) return v.pop().split(';').shift();
+    return '';
+  }
+
+  btn.addEventListener('click', function() {
+    btn.disabled = true;
+    output.classList.add('d-none');
+    loader.classList.remove('d-none');
+
+    fetch(btn.dataset.url, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': getCookie('csrftoken'),
+        'X-Requested-With': 'XMLHttpRequest',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({})
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      loader.classList.add('d-none');
+      output.classList.remove('d-none');
+      alertBox.classList.remove('alert-light', 'alert-warning', 'alert-danger');
+      alertBox.classList.add(data.ok ? 'alert-light' : 'alert-warning');
+      alertBox.textContent = data.text || '(réponse vide)';
+      btn.disabled = false;
+    })
+    .catch(function(err) {
+      loader.classList.add('d-none');
+      output.classList.remove('d-none');
+      alertBox.classList.remove('alert-light', 'alert-warning');
+      alertBox.classList.add('alert-danger');
+      alertBox.textContent = 'Erreur réseau : ' + err;
+      btn.disabled = false;
+    });
+  });
+})();
+</script>
+{% endif %}
+{% endblock %}

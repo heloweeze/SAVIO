@@ -1,0 +1,78 @@
+{% load static %}
+<aside id="sidebar" class="sidebar">
+  <ul class="sidebar-nav" id="sidebar-nav">
+
+    <li class="nav-item">
+      <a class="nav-link {% if request.resolver_match.namespace == 'dashboard' %}{% else %}collapsed{% endif %}" href="{% url 'dashboard:home' %}">
+        <i class="bi bi-grid"></i><span>Tableau de bord</span>
+      </a>
+    </li>
+
+    <li class="nav-heading">Gestion</li>
+
+    <li class="nav-item">
+      <a class="nav-link {% if request.resolver_match.namespace != 'tickets' %}collapsed{% endif %}" href="{% url 'tickets:list' %}">
+        <i class="bi bi-ticket-detailed"></i><span>Demandes SAV</span>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link {% if request.resolver_match.namespace != 'clients' %}collapsed{% endif %}" href="{% url 'clients:list' %}">
+        <i class="bi bi-people"></i><span>Clients</span>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link {% if request.resolver_match.namespace != 'technicians' %}collapsed{% endif %}" href="{% url 'technicians:list' %}">
+        <i class="bi bi-person-badge"></i><span>Techniciens</span>
+      </a>
+    </li>
+
+    <li class="nav-heading">Exploitation</li>
+
+    <li class="nav-item">
+      <a class="nav-link {% if request.resolver_match.namespace != 'history' %}collapsed{% endif %}" href="{% url 'history:list' %}">
+        <i class="bi bi-clock-history"></i><span>Historique</span>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link {% if request.resolver_match.namespace != 'reports' %}collapsed{% endif %}" href="{% url 'reports:home' %}">
+        <i class="bi bi-bar-chart"></i><span>Rapports</span>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link {% if request.resolver_match.namespace != 'importexport' %}collapsed{% endif %}" href="{% url 'importexport:home' %}">
+        <i class="bi bi-arrow-down-up"></i><span>Import / Export</span>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link {% if request.resolver_match.namespace != 'notifications' %}collapsed{% endif %}" href="{% url 'notifications:list' %}">
+        <i class="bi bi-bell"></i><span>Notifications</span>
+      </a>
+    </li>
+
+    <li class="nav-heading">Paramétrage</li>
+
+    <li class="nav-item">
+      <a class="nav-link {% if request.resolver_match.namespace != 'configuration' %}collapsed{% endif %}" href="{% url 'configuration:home' %}">
+        <i class="bi bi-gear"></i><span>Configuration</span>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link {% if request.resolver_match.namespace != 'assistant' %}collapsed{% endif %}" href="{% url 'assistant:admin_panel' %}">
+        <i class="bi bi-robot"></i><span>Assistant IA</span>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link {% if request.resolver_match.namespace != 'accounts' %}collapsed{% endif %}" href="{% url 'accounts:profile' %}">
+        <i class="bi bi-person-circle"></i><span>Mon profil</span>
+      </a>
+    </li>
+
+  </ul>
+</aside>

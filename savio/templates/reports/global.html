@@ -1,0 +1,68 @@
+{% extends "base_admin.html" %}
+{% block title %}Rapport global{% endblock %}
+{% block page_title %}Rapport global{% endblock %}
+{% block breadcrumbs %}<li class="breadcrumb-item"><a href="{% url 'reports:home' %}">Rapports</a></li><li class="breadcrumb-item active">Global</li>{% endblock %}
+
+{% block content %}
+<div class="card"><div class="card-body">
+  <div class="d-flex justify-content-between align-items-center">
+    <h5 class="card-title mb-0">Période analysée</h5>
+    <a href="?start={{ start }}&end={{ end }}&format=pdf"
+       class="btn btn-sm btn-outline-danger">
+      <i class="bi bi-file-earmark-pdf"></i> Télécharger PDF
+    </a>
+  </div>
+  {% include "reports/_filters.html" %}
+
+  <div class="row mb-4">
+    <div class="col-md-4"><div class="border rounded p-3 text-center">
+      <div class="text-muted small">Demandes sur la période</div>
+      <div class="fs-3 fw-semibold">{{ total }}</div>
+    </div></div>
+    <div class="col-md-4"><div class="border rounded p-3 text-center">
+      <div class="text-muted small">En cours</div>
+      <div class="fs-3 fw-semibold text-warning">{{ open_count }}</div>
+    </div></div>
+    <div class="col-md-4"><div class="border rounded p-3 text-center">
+      <div class="text-muted small">Clôturées</div>
+      <div class="fs-3 fw-semibold text-success">{{ closed_count }}</div>
+    </div></div>
+  </div>
+
+  <h6 class="mt-4">Répartition par statut</h6>
+  <table class="table table-sm table-striped">
+    <thead><tr><th>Statut</th><th class="text-end">Nombre</th></tr></thead>
+    <tbody>
+      {% for row in by_status %}
+        <tr><td>{{ row.label }}</td><td class="text-end">{{ row.total }}</td></tr>
+      {% empty %}
+        <tr><td colspan="2" class="text-center text-muted">Aucune donnée.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h6 class="mt-4">Répartition par priorité</h6>
+  <table class="table table-sm table-striped">
+    <thead><tr><th>Priorité</th><th class="text-end">Nombre</th></tr></thead>
+    <tbody>
+      {% for row in by_priority %}
+        <tr><td>{{ row.label }}</td><td class="text-end">{{ row.total }}</td></tr>
+      {% empty %}
+        <tr><td colspan="2" class="text-center text-muted">Aucune donnée.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h6 class="mt-4">Évolution quotidienne</h6>
+  <table class="table table-sm table-bordered">
+    <thead><tr><th>Date</th><th class="text-end">Demandes créées</th></tr></thead>
+    <tbody>
+      {% for row in evolution %}
+        <tr><td>{{ row.day|date:"d/m/Y" }}</td><td class="text-end">{{ row.total }}</td></tr>
+      {% empty %}
+        <tr><td colspan="2" class="text-center text-muted">Aucune activité sur la période.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+{% endblock %}
